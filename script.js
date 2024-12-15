@@ -38,10 +38,10 @@ const color = [
 
 
 // // Rough code 
-// for (i = 0; i < 200; i++) {
-//     squares[i].textContent = i;
-//     squares2[i].textContent = i;
-// }
+for (i = 0; i < 200; i++) {
+    squares[i].textContent = i;
+    squares2[i].textContent = i;
+}
 
 // shapes 
 const lshape = [
@@ -89,184 +89,159 @@ let currentRotation = 0;
 let currentPosition2 = 4;
 let currentRotation2 = 0;
 
+const getRandomShape = (currentRotation) => {
+    let random = Math.floor(Math.random() * theShapes.length);
+    let Shape = theShapes[random][currentRotation];
+    return { Shape, random };
+}
 
 // // Selecting random shape 
-let random = Math.floor(Math.random() * theShapes.length);
-let currentShape = theShapes[random][currentRotation]
+let { Shape: currentShape, random } = getRandomShape(currentRotation)
+let { Shape: currentShape2, random: random2 } = getRandomShape(currentRotation2)
 
-let random2 = Math.floor(Math.random() * theShapes.length);
-let currentShape2 = theShapes[random2][currentRotation]
-
+const board1State = { squares, currentPosition, currentRotation, currentShape, random };
+const board2State = { squares: squares2, currentPosition: currentPosition2, currentRotation: currentRotation2, currentShape: currentShape2, random: random2 };
 
 // // draw the shapes 
-function draw() {
+function draw(board) {
+    const { currentShape, squares, currentPosition, random } = board;
     currentShape.forEach((index) => {
         squares[currentPosition + index].style.background = color[random];
     })
 }
-draw();
+draw(board1State);
+draw(board2State);
 
-function draw2() {
-    currentShape2.forEach((index) => {
-        squares2[currentPosition2 + index].style.background = color[random2];
-    })
-}
-draw2();
-
-// // Erase the shape 
-function erase() {
+// // // Erase the shape 
+function erase(board) {
+    const { currentShape, squares, currentPosition } = board;
     currentShape.forEach((index) => {
         squares[currentPosition + index].style.background = "none";
     })
 }
-function erase2() {
-    currentShape2.forEach((index) => {
-        squares2[currentPosition2 + index].style.background = "none";
-    })
-}
 
-
-// // move down 
+// // // move down 
 function moveDown() {
-    erase();
+    erase(board1State);
     currentPosition += width;
-    draw();
-    stop();
+    draw(board1State);
+    stop(currentShape, squares, currentPosition, random, currentRotation);
 }
-var timer = setInterval(moveDown, 1000);
+// var timer = setInterval(moveDown, 1000);
 
 function moveDown2() {
-    erase2();
+    erase(board2State);
     currentPosition2 += width;
-    draw2();
-    stop2();
+    draw(board2State);
+    stop(currentShape2, squares2, currentPosition2, random2, currentRotation2);
 }
-var timer2 = setInterval(moveDown2, 1000);
+// var timer2 = setInterval(moveDown2, 1000);
 
-// // stop the shape 
-function stop() {
-    if (currentShape.some(index => squares[currentPosition + index + width].classList.contains('freeze'))) {
-        currentShape.forEach(index => squares[currentPosition + index].classList.add('freeze'));
-        // start a new shape 
-        random = Math.floor(Math.random() * theShapes.length);
-        currentRotation = 0;
-        currentShape = theShapes[random][currentRotation]
-        currentPosition = 4;
-        draw();
-        gameOver();
-        addScore();
-    }
-}
-function stop2() {
-    if (currentShape2.some(index => squares2[currentPosition2 + index + width].classList.contains('freeze'))) {
-        currentShape2.forEach(index => squares2[currentPosition2 + index].classList.add('freeze'));
-        // start a new shape 
-        random2 = Math.floor(Math.random() * theShapes.length);
-        currentRotation2 = 0;
-        currentShape2 = theShapes[random2][currentRotation2]
-        currentPosition2 = 4;
-        draw2();
-        gameOver();
-        addScore2();
-    }
-}
+// // // stop the shape 
+// function stop(currentShape,squares,currentPosition,random,currentRotation) {
+//     if (currentShape.some(index => squares[currentPosition + index + width].classList.contains('freeze'))) {
+//         currentShape.forEach(index => squares[currentPosition + index].classList.add('freeze'));
+//         // start a new shape 
+//         random = Math.floor(Math.random() * theShapes.length);
+//         currentRotation = 0;
+//         currentShape = theShapes[random][currentRotation]
+//         currentPosition = 4;
+//         draw(board1State);
+//         gameOver();
+//         addScore(squares,count,score)//make this available for both
+//     }
+// }
 
-// // control the game 
+// // // control the game 
 function control(e) {
     if (!gOver) {
-        if (e.keyCode === 65 ) {
-            moveleft();
+        if (e.keyCode === 65) {
+            moveleft(board1State);
         }
-        else if (e.keyCode ===68 ) {
-            moveRight();
+        else if (e.keyCode === 68) {
+            moveRight(board1State);
         }
-        else if (e.keyCode ===83 ) {
-            moveDown();
+        else if (e.keyCode === 83) {
+            moveDown(board1State);
         }
-        else if (e.keyCode ===87) {
-            rotate();
+        else if (e.keyCode === 87) {
+            rotate(board1State);
         }
     }
 }
 function control2(e) {
-    console.log(e.keyCode);
     if (!gOver) {
         if (e.keyCode === 37) {
-            moveleft2();
+            moveleft(board2State);
         }
         else if (e.keyCode === 39) {
-            moveRight2();
+            moveRight(board2State);
         }
         else if (e.keyCode === 40) {
             moveDown2();
         }
         else if (e.keyCode === 38) {
-            rotate2();
+            rotate(board2State);
         }
     }
 }
 window.addEventListener("keydown", control);
 window.addEventListener("keydown", control2);
 
-// // Control shapes in phone 
-leftBtn.addEventListener("click", moveleft);
-rightBtn.addEventListener("click", moveRight);
+// // // Control shapes in phone 
+leftBtn.addEventListener("click", () => moveleft(board1State));
+rightBtn.addEventListener("click", () => moveRightmoveleft(board1State));
 downBtn.addEventListener("click", moveDown);
-rotateBtn.addEventListener("click", rotate);
+rotateBtn.addEventListener("click", () => rotatemoveleft(board1State));
 
-leftBtn2.addEventListener("click", moveleft2);
-rightBtn2.addEventListener("click", moveRight2);
+leftBtn2.addEventListener("click", () => moveleft(board2State));
+rightBtn2.addEventListener("click", () => moveRight(board2State));
 downBtn2.addEventListener("click", moveDown2);
-rotateBtn2.addEventListener("click", rotate2);
+rotateBtn2.addEventListener("click", () => rotate(board2State));
 
 
 // // move left 
-function moveleft() {
-    erase();
-    let leftBlockage = currentShape.some(index => (currentPosition + index) % width === 0)
+function moveleft(board) {
+    let { currentShape, squares, currentPosition, random } = board
+    console.log('Before left move called');
+    console.log(`
+        currentShape : ${currentShape}
+        currentPosition : ${currentPosition}
+        random : ${random}
+        `);
+    erase(board1State);
+    let leftBlockage = currentShape.some(index => (currentPosition + index) % width === 0);
     let Blockage = currentShape.some(index => squares[currentPosition + index - 1].classList.contains('freeze'));
     if (!leftBlockage && !Blockage) {
         currentPosition--;
     }
-    draw();
-}
-
-function moveleft2() {
-    erase2();
-    let leftBlockage = currentShape2.some(index => (currentPosition2 + index) % width === 0)
-    let Blockage = currentShape2.some(index => squares2[currentPosition2 + index - 1].classList.contains('freeze'));
-    if (!leftBlockage && !Blockage) {
-        currentPosition2--;
-    }
-    draw2();
+    draw(board1State);
+    console.log('After left move called');
+    console.log(`
+            currentShape : ${currentShape}
+            currentPosition : ${currentPosition}
+            random : ${random}
+            `);
+    console.log(globalThis.currentShape);
 }
 
 // // move right 
-function moveRight() {
-    erase();
+function moveRight(board) {
+    let { currentShape, squares, currentPosition, random } = board;
+    erase(board1State);
 
     let RightBlockage = currentShape.some(index => (currentPosition + index) % width === width - 1)
     let Blockage = currentShape.some(index => squares[currentPosition + index + 1].classList.contains('freeze'));
     if (!RightBlockage && !Blockage) {
         currentPosition++;
     }
-    draw();
-}
-
-function moveRight2() {
-    erase2();
-
-    let RightBlockage = currentShape2.some(index => (currentPosition2 + index) % width === width - 1)
-    let Blockage = currentShape2.some(index => squares2[currentPosition2 + index + 1].classList.contains('freeze'));
-    if (!RightBlockage && !Blockage) {
-        currentPosition2++;
-    }
-    draw2();
+    draw(board1State);
 }
 
 // // Rotate 
-function rotate() {
-    erase();
+function rotate(board) {
+    let { currentShape, squares, currentPosition, random } = board;
+    erase(board1State);
     let RightBlockage = currentShape.some(index => (currentPosition + index) % width === width - 1)
     let leftBlockage = currentShape.some(index => (currentPosition + index) % width === 0)
 
@@ -274,91 +249,62 @@ function rotate() {
         currentRotation = (currentRotation + 1) % 4;
     }
     currentShape = theShapes[random][currentRotation];
-    draw();
+    draw(board1State);
 }
 
-function rotate2() {
-    erase2();
-    let RightBlockage = currentShape2.some(index => (currentPosition2 + index) % width === width - 1)
-    let leftBlockage = currentShape2.some(index => (currentPosition2 + index) % width === 0)
+// // // Pause Function
+// function pause() {
+//     if (timer || timer2) {
+//         clearInterval(timer)
+//         clearInterval(timer2)
+//         timer = null;
+//         timer2 = null;
+//         btnImg.src = "images/play.png";
+//     }
+//     else {
+//         draw(board1State);
+//         draw(board2State);
+//         timer = setInterval(moveDown, 1000);
+//         timer2 = setInterval(moveDown2, 1000);
+//         btnImg.src = "images/pause.png"
+//     }
+// }
+// startBtn.addEventListener("click", pause);
 
-    if (!leftBlockage && !RightBlockage) {
-        currentRotation2 = (currentRotation2 + 1) % 4;
-    }
-    currentShape2 = theShapes[random2][currentRotation2];
-    draw2();
-}
+// // // game over
+// function gameOver() {
+//     if (currentShape.some(index => squares[currentPosition + index].classList.contains('freeze'))) {
+//         score.innerHTML = "Game Over";
+//         clearInterval(timer);
+//         console.log('game over for 1 ');
+//         pause();
+//         gOver = true;
+//     }
+//     if (currentShape2.some(index => squares2[currentPosition2 + index].classList.contains('freeze'))) {
+//         score2.innerHTML = "Game Over";
+//         console.log('game over for 1 ');
+//         clearInterval(timer2);
+//         pause();
+//         gOver = true;
+//     }
+// }
 
-// // Pause Function 
-function pause() {
-    if (timer || timer2) {
-        clearInterval(timer)
-        clearInterval(timer2)
-        timer = null;
-        timer2 = null;
-        btnImg.src = "images/play.png";
-    }
-    else {
-        draw();
-        draw2();
-        timer = setInterval(moveDown, 1000);
-        timer2 = setInterval(moveDown2, 1000);
-        btnImg.src = "images/pause.png"
-    }
-}
-startBtn.addEventListener("click", pause);
-
-// // game over 
-function gameOver() {
-    if (currentShape.some(index => squares[currentPosition + index].classList.contains('freeze'))) {
-        score.innerHTML = "Game Over";
-        clearInterval(timer);
-        pause();
-        gOver = true;
-    }
-    if (currentShape2.some(index => squares2[currentPosition2 + index].classList.contains('freeze'))) {
-        score2.innerHTML = "Game Over";
-        clearInterval(timer2);
-        pause();
-        gOver = true;
-    }
-}
-
-// // add score
-function addScore() {
-    for (let i = 0; i<199; i += width) {
-        const row = [i,i+1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9];
-        // console.log(row);
-        if (row.every(index => squares[index].classList.contains('freeze'))) {
-            count += 10;
-            score.textContent = `Score : ${count}`
-            row.forEach(index => {
-                squares[index].classList.remove("freeze");
-                squares[index].style.background = '';
-            })
-            const squareRemoved = squares.splice(i,width);
-            console.log(squareRemoved);  
-            squares = squareRemoved.concat(squares)
-            squares.forEach(square => grid.appendChild(square));
-        }
-    }
-}
-
-function addScore2() {
-    for (let i = 0; i<199; i += width) {
-        const row = [i,i+1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9];
-        // console.log(row);
-        if (row.every(index => squares2[index].classList.contains('freeze'))) {
-            count2 += 10;
-            score2.textContent = `Score : ${count}`
-            row.forEach(index => {
-                squares2[index].classList.remove("freeze");
-                squares2[index].style.background = '';
-            })
-            const squareRemoved = squares2.splice(i,width);
-            console.log(squareRemoved);  
-            squares2 = squareRemoved.concat(squares2)
-            squares2.forEach(square => grid.appendChild(square));
-        }
-    }
-}
+// // // add score
+// function addScore(squares,count,score) {
+//     for (let i = 0; i < 199; i += width) {
+//         const row = [i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9];
+//         // console.log(row);
+//         if (row.every(index => squares[index].classList.contains('freeze'))) {
+//             count += 10;
+//             score.textContent = `Score : ${count}`
+//             row.forEach(index => {
+//                 squares[index].classList.remove("freeze");
+//                 squares[index].style.background = '';
+//             })
+//             const squareRemoved = squares.splice(i, width);
+//             console.log(squareRemoved);
+//             squares = squareRemoved.concat(squares)
+//             squares.forEach(square => grid.appendChild(square));
+//         }
+//     }
+// }
